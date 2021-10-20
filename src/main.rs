@@ -15,13 +15,16 @@ fn main() {
     let (tx1, rx1) = mpsc::channel();
     let (tx2, rx2) = mpsc::channel();
 
-    let producer = thread::spawn(move || {
-        let mut messages: Vec<usize> = (0..NUM_MESSAGES).collect();
-        messages.shuffle(&mut thread_rng());
-        for i in messages {
-            tx1.send(i).unwrap();
+    let processor = thread::spawn(move || {
+        // Processor receiving batches from consumer and printing accordingly
+        for batch in rx2 {
+            print!("Batch Received: ");
+            for message in batch {
+                let message: usize = message;
+                print!(" {} ", message.to_string());
+            }
+            println!();
         }
-        drop(tx1);
     });
 
     let consumer = thread::spawn(move || {
@@ -52,16 +55,14 @@ fn main() {
         }
         drop(tx2);
     });
-    
-    let processor = thread::spawn(move || {
-        // Processor receiving batches from consumer and printing accordingly
-        for batch in rx2 {
-            print!("Batch Received: ");
-            for message in batch {
-                print!(" {} ", message.to_string());
-            }
-            println!();
+
+    let producer = thread::spawn(move || {
+        let mut messages: Vec<usize> = (0..NUM_MESSAGES).collect();
+        messages.shuffle(&mut thread_rng());
+        for i in messages {
+            tx1.send(i).unwrap();
         }
+        drop(tx1);
     });
 
     // wait for all threads to finish
