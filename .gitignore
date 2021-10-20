@@ -1,1 +1,2 @@
-
+/target
+!/target/debug/sail_point_rust.exe

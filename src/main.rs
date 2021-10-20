@@ -1,7 +1,7 @@
 use std::thread;
 use std::sync::mpsc;
 // originally used hashmap but the reallocations will not scale
-// with an unknown number of messages coming in very well
+// very well with an unknown number of messages coming in
 //use std::collections::HashMap;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
