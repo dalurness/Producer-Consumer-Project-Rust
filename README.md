@@ -1,5 +1,5 @@
 ## Producer Consumer Project 
-Windows executable is found in ./target/debug/sail_point_rust.exe 
+Windows executable is found in ./target/release/sail_point_rust.exe 
 
 
 ### Project Code 
