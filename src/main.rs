@@ -31,8 +31,9 @@ fn main() {
         // consumer waiting for messages, loading them into batches in order and sending them to the processor
         let mut batches = BTreeMap::new();
         let mut batch_to_send = 0;
+
         for message in rx1 {
-            let len;
+            let mut len;
             {
                 let batch = batches.entry(message/BATCH_SIZE).or_insert_with(BTreeSet::new);
                 batch.insert(message);
@@ -41,9 +42,22 @@ fn main() {
             
             // send next batch if it is ready
             if len == BATCH_SIZE && message/BATCH_SIZE == batch_to_send {
-                let to_send = batches.remove(&(message/BATCH_SIZE)).unwrap().into_iter().collect();
-                tx2.send(to_send).unwrap();
-                batch_to_send += 1;
+                // do while loop
+                while {
+                    let to_send = batches.remove(&(batch_to_send)).unwrap().into_iter().collect();
+                    tx2.send(to_send).unwrap();
+                    batch_to_send += 1;
+                    
+                    // reset len to the length of the next batch to check it
+                    if batches.contains_key(&batch_to_send) {
+                        len = batches.get(&batch_to_send).unwrap().len();
+
+                        len == BATCH_SIZE
+                    } else {
+                        false
+                    }
+                    
+                } {}
             }
         }
         
